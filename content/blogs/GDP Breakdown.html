@@ -1,0 +1,172 @@
+---
+categories:
+- ""
+- ""
+date: "2017-10-31T22:26:13-05:00"
+description: Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna
+  sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa
+  sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem
+  consequat tincidunt. Vivamus et sagittis tempus.
+draft: false
+image: pic08.jpg
+keywords: ""
+slug: gdpbreakdown
+title: GDP Breakdown
+---
+
+<script src="GDP Breakdown_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="gdp-components-over-time-and-among-countries" class="section level1">
+<h1>GDP components over time and among countries</h1>
+<p>At the risk of oversimplifying things, the main components of gross domestic product, GDP are personal consumption (C), business investment (I), government spending (G) and net exports (exports - imports). You can read more about GDP and the different approaches in calculating at the <a href="https://en.wikipedia.org/wiki/Gross_domestic_product">Wikipedia GDP page</a>.</p>
+<p>The GDP data we will look at is from the <a href="https://unstats.un.org/unsd/snaama/Downloads">United Nations’ National Accounts Main Aggregates Database</a>, which contains estimates of total GDP and its components for all countries from 1970 to today. We will look at how GDP and its components have changed over time, and compare different countries and how much each component contributes to that country’s GDP.</p>
+<pre class="r"><code>UN_GDP_data  &lt;-  read_excel(here::here(&quot;data&quot;, &quot;Download-GDPconstant-USD-countries.xls&quot;), # Excel filename
+                sheet=&quot;Download-GDPconstant-USD-countr&quot;, # Sheet name
+                skip=2) # Number of rows to skip</code></pre>
+<pre class="r"><code>#Tidy data
+tidy_GDP_data &lt;-UN_GDP_data %&gt;% pivot_longer(cols = 4:51, names_to = &quot;year&quot;, values_to = &quot;amount&quot;) %&gt;%
+  
+  #Change names 
+  mutate(IndicatorName=recode(IndicatorName, 
+                         `Final consumption expenditure`=&quot;consumption_exp&quot;,
+                         `Household consumption expenditure (including Non-profit institutions serving households)`=&quot;Household expenditure&quot;, 
+                         `General government final consumption expenditure`=&quot;Government expenditure&quot;, 
+                         `Gross fixed capital formation (including Acquisitions less disposals of valuables)`=&quot;gross_fixed_capital&quot;, 
+                         `Exports of goods and services`=&quot;Exports&quot;, 
+                         `Imports of goods and services`=&quot;Imports&quot;, 
+                         `Gross Domestic Product (GDP)`=&quot;GDP&quot;, 
+                         `Other Activities (ISIC J-P)`=&quot;other&quot;,
+                         `Agriculture, hunting, forestry, fishing (ISIC A-B)`=&quot;agriculture&quot;, 
+                         `Mining, Manufacturing, Utilities (ISIC C-E)`=&quot;mining&quot;, 
+                         `Wholesale, retail trade, restaurants and hotels (ISIC G-H)`=&quot;wholesale&quot;, 
+                         `Transport, storage and communication (ISIC I)`=&quot;transport&quot;), 
+         
+                         # Change amount in bn
+                          amount=amount / 1e9) %&gt;% 
+  clean_names()
+
+glimpse(tidy_GDP_data)</code></pre>
+<pre><code>## Rows: 176,880
+## Columns: 5
+## $ country_id     &lt;dbl&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4~
+## $ country        &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanist~
+## $ indicator_name &lt;chr&gt; &quot;consumption_exp&quot;, &quot;consumption_exp&quot;, &quot;consumption_exp&quot;~
+## $ year           &lt;chr&gt; &quot;1970&quot;, &quot;1971&quot;, &quot;1972&quot;, &quot;1973&quot;, &quot;1974&quot;, &quot;1975&quot;, &quot;1976&quot;,~
+## $ amount         &lt;dbl&gt; 5.56, 5.33, 5.20, 5.75, 6.15, 6.32, 6.37, 6.90, 7.09, 6~</code></pre>
+<pre class="r"><code># Let us compare GDP components for these 3 countries
+country_list &lt;- c(&quot;United States&quot;,&quot;India&quot;, &quot;Germany&quot;)</code></pre>
+<p>First let us have a look at how the GDP components of United States, India and Germany have fluctuated over years.</p>
+<pre class="r"><code>#filter the required the indicators
+indicator_list &lt;- c(&quot;Gross capital formation&quot;, &quot;Exports&quot;, &quot;Imports&quot;, &quot;Government expenditure&quot;, &quot;Household expenditure&quot;)
+
+#create and filter a temp table
+components_table &lt;- tidy_GDP_data %&gt;% 
+  filter((country %in% country_list), (indicator_name %in% indicator_list)) 
+
+#reorder the level for the legend
+components_table$indicator_name &lt;- factor(components_table$indicator_name, levels = c(&quot;Gross capital formation&quot;, &quot;Exports&quot;, &quot;Imports&quot;, &quot;Government expenditure&quot;, &quot;Household expenditure&quot;))
+
+#create the graph
+components_table %&gt;% ggplot(aes(year, amount, group = indicator_name, color = indicator_name)) + 
+  geom_line(size=1) + 
+  scale_x_discrete(breaks=seq(1970,2010,10)) +
+  facet_wrap(~country) +
+  labs(title = &quot;GDP components over time&quot;, 
+       subtitle = &quot;In constant 2010 USD&quot;, 
+       x = &quot;&quot;, 
+       y = &quot;Billion US$&quot;, 
+       color = &quot;Components of GDP&quot;) +
+  
+  theme_bw() +
+  
+  theme(axis.text.x= element_text(size=7), axis.text.y= element_text(size=7)) +
+  
+  NULL</code></pre>
+<p><img src="/blogs/GDP%20Breakdown_files/figure-html/GDP%20components%20plot-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>Secondly, recall that GDP is the sum of Household Expenditure (Consumption <em>C</em>), Gross Capital Formation (business investment <em>I</em>), Government Expenditure (G) and Net Exports (exports - imports). Now have a look at the % difference between the calculated GDP and the GDP figure included in the dataframe</p>
+<pre class="r"><code>indicator_list2 &lt;- c(&quot;Gross capital formation&quot;, &quot;Exports&quot;, &quot;Imports&quot;, &quot;Government expenditure&quot;, &quot;Household expenditure&quot;, &quot;GDP&quot;)
+
+gdp_table &lt;- tidy_GDP_data %&gt;% 
+  
+  #Filter relevant data
+  filter(country %in% country_list, indicator_name %in% indicator_list2) %&gt;% 
+  
+  #Transform to wider format
+  pivot_wider(names_from = indicator_name, values_from = amount) %&gt;% 
+  
+  #Calculate GDP diff
+  mutate(Net_exports = Exports - Imports, 
+         Calculated_gdp = `Gross capital formation` + `Government expenditure` + `Household expenditure` + Net_exports, 
+         gdp_diff = 100 * ((Calculated_gdp - GDP) / GDP))
+
+gdp_table %&gt;%  
+  group_by(country) %&gt;% 
+  summarise(mean_gdp_diff=mean(gdp_diff),
+            median_gdp_diff=median(gdp_diff),
+            sd_gdp_diff=sd(gdp_diff),
+            max_gdp_diff=max(gdp_diff),
+            min_gdp_diff=min(gdp_diff))</code></pre>
+<pre><code>## # A tibble: 3 x 6
+##   country       mean_gdp_diff median_gdp_diff sd_gdp_diff max_gdp_diff min_gdp_diff
+##   &lt;chr&gt;                 &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
+## 1 Germany               1.14            0.776        1.16         3.56      -0.0411
+## 2 India                 0.193          -0.198        3.41         7.41      -6.34  
+## 3 United States         1.27            0.984        1.34         4.55      -0.0522</code></pre>
+<pre class="r"><code>#create the graph
+gdp_table %&gt;% ggplot(aes(year, gdp_diff, group = 1)) + 
+  geom_line() + 
+  scale_x_discrete(breaks=seq(1970,2010,10)) +
+  facet_wrap(~country) +
+  
+  #Create horizontal line 
+  geom_hline(yintercept=0, 
+             linetype=&quot;solid&quot;,
+             color = &quot;red&quot;, 
+             size=0.5) + 
+  
+  #Label the graph
+  labs(title = &quot;% Difference in GDP over time&quot;,
+       x = &quot;Year&quot;, 
+       y = &quot;% (calculated over provided GDP)&quot;) +
+  
+  theme_bw() +
+  theme(axis.text.x= element_text(size=7), 
+        axis.text.y= element_text(size=7)) +
+  
+  NULL</code></pre>
+<p><img src="/blogs/GDP%20Breakdown_files/figure-html/calculate%20GDP-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>The graphs above show the proportion of the different components that make up GDP by country. For example we can see that India has the highest household expenditure proportion and also comparatively high gross capital formation. For Germany and US, the government expenditure and gross capital formation proportion are closer together. The Net Exports for all countries change along the 0% proportion.</p>
+<p>Finally, why not glance at the GDP break down of other three countries?</p>
+<pre class="r"><code># Choose these 3 countries
+country_list2 &lt;- c(&quot;United Kingdom&quot;,&quot;China&quot;, &quot;Japan&quot;)
+
+#filter the required the indicators
+indicator_list &lt;- c(&quot;Gross capital formation&quot;, &quot;Exports&quot;, &quot;Imports&quot;, &quot;Government expenditure&quot;, &quot;Household expenditure&quot;)
+
+#create and filter a temp table
+components_table2 &lt;- tidy_GDP_data %&gt;% 
+  filter(country %in% country_list2, indicator_name %in% indicator_list) 
+
+#reorder the level for the legend
+components_table2$indicator_name &lt;- factor(components_table2$indicator_name, levels = c(&quot;Gross capital formation&quot;, &quot;Exports&quot;, &quot;Government expenditure&quot;, &quot;Household expenditure&quot;, &quot;Imports&quot;))
+
+#create the graph
+components_table2 %&gt;% ggplot(aes(year, amount, group = indicator_name, color = indicator_name)) + 
+  
+  geom_line() + 
+  
+  scale_x_discrete(breaks=seq(1970,2010,10)) +
+  
+  facet_wrap(~country) +
+  
+  labs(title = &quot;GDP components over time&quot;,
+       subtitle = &quot;In constant 2010 USD&quot;, 
+       x = &quot;&quot;, y = &quot;Billion US$&quot;, 
+       color = &quot;Components of GDP&quot;) +
+  
+  theme_bw() +
+  theme(axis.text.x= element_text(size=7), axis.text.y= element_text(size=7)) +
+  NULL</code></pre>
+<p><img src="/blogs/GDP%20Breakdown_files/figure-html/produce%20our%20own%20graph-1.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>

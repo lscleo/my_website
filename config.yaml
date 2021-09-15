@@ -86,13 +86,13 @@ params:
         title: Leo Liu's website
         url: blogs/leo
       - image: pic02.jpg
-        subtitle: Feugiat Amet Tempus
-        title: Tempus
-        url: blogs/tempus
+        subtitle: The GDP component analysis over time
+        title: GDP Breakdown
+        url: blogs/gdpbreakdown
       - image: pic03.jpg
-        subtitle: Lorem Etiam Nullam
-        title: Magna
-        url: blogs/magna
+        subtitle: Compare TfL bike sharing on a weekly and monthly basis
+        title: Bike Rentals Analysis
+        url: blogs/bike
       - image: pic04.jpg
         subtitle: Nisl Sed Aliquam
         title: Ipsum
