@@ -93,18 +93,18 @@ params:
         subtitle: Compare TfL bike sharing on a weekly and monthly basis
         title: Bike Rentals Analysis
         url: blogs/bike
-      - image: pic04.jpg
-        subtitle: Nisl Sed Aliquam
-        title: Ipsum
-        url: blogs/ipsum
-      - image: pic05.jpg
-        subtitle: Ipsum Dolor Sit Amet
-        title: Consequat
-        url: blogs/ipsum
-      - image: pic06.jpg
-        subtitle: Feugiat Amet Tempus
-        title: Etiam
-        url: blogs/ipsum
+#      - image: pic04.jpg
+#        subtitle: Nisl Sed Aliquam
+#       title: Ipsum
+#        url: blogs/ipsum
+#      - image: pic05.jpg
+#        subtitle: Ipsum Dolor Sit Amet
+#        title: Consequat
+#        url: blogs/ipsum
+#      - image: pic06.jpg
+#        subtitle: Feugiat Amet Tempus
+#        title: Etiam
+#        url: blogs/ipsum
   two:
     buttonText: Get Started
     enable: yes
