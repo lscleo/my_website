@@ -81,15 +81,15 @@ params:
   tiles:
     enable: yes
     showcase:
-      - image: pic01.jpg
+      - image: corridor.jpg
         subtitle: About me
         title: Leo Liu's website
         url: blogs/leo
-      - image: pic02.jpg
+      - image: snow.jpg
         subtitle: The GDP component analysis over time
         title: GDP Breakdown
         url: blogs/gdpbreakdown
-      - image: pic03.jpg
+      - image: motor.jpg
         subtitle: Compare TfL bike sharing on a weekly and monthly basis
         title: Bike Rentals Analysis
         url: blogs/bike
